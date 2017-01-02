@@ -1,20 +1,12 @@
 package application;
 
-import vue.Windows;
-
 public class Main {
 
 	public static void main(String[] args) {
-		Game game = new Game();
-		Windows windows = new Windows(game);
 		
-		try {
-			Thread.sleep(2000);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
+		Game.getInstance().init();
 		
-		game.changePlayerTMP();
-		windows.updateStructure(game);
+//		CardManager cards = CardManager.getInstance();
+//		new ChooseDistrictCard(cards.getDistrictCard(20), new Player(true));
 	}
 }

@@ -2,7 +2,6 @@ package application;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import maxime.maheo.free.fr.card.CardManager;
 import maxime.maheo.free.fr.card.character.Architect;
@@ -18,11 +17,12 @@ import maxime.maheo.free.fr.game.Player;
 import maxime.maheo.free.fr.game.PowerManager;
 import maxime.maheo.free.fr.game.Tray;
 import maxime.maheo.free.fr.util.Random;
+import view.Window;
 
 /**
  * Used to create the game.
  */
-public class Game implements Random {
+public final class Game implements Random {
 
     /**
      * First character.
@@ -73,8 +73,10 @@ public class Game implements Random {
      * Constructor.
      */
     public Game() {
-        this.firstPlayer = new Player();
-        this.secondPlayer = new Player();
+        this.firstPlayer = new Player(true);
+        this.firstPlayer.setName("Dada"); // TMP
+        this.secondPlayer = new Player(false);
+        this.secondPlayer.setName("Blop"); // TMP
         this.bank = Bank.getInstance();
         this.cardManager = CardManager.getInstance();
         this.powerManager = PowerManager.getInstance();
@@ -134,49 +136,95 @@ public class Game implements Random {
                         }
 
                         if (this.firstPlayer.hasCharacterWithNumber(characterNumber)) {
+                        	this.firstPlayer.setPlaying(true);
+                        	this.firstPlayer.setIsPlayingCharacterNumber(characterNumber); // IHM
+                        	
                             this.stolenCharacter(characterNumber, true);
-
-                            boolean activeNow = this.playPowerBeforePlaceDistrict(this.firstPlayer, characterNumber);
+                            
+                            
+                            Window.getInstance().updateStructure(Game.getInstance());
+                            this.initRound(this.firstPlayer); // IHM
+                            this.firstPlayer.setHadToChooseBetweenGoldAndCards(true); // IHM
 
                             System.out.println("-----Joueur-----");
                             System.out.println(this.firstPlayer + "\n\n");
-
-                            this.firstPlayer.takeCoinsOrCards(this.cardManager);
-
-                            if ((this.firstPlayer.getFirstCharacter() instanceof Architect || this.firstPlayer.getSecondCharacter() instanceof Architect) && characterNumber == 7) {
-                                this.firstPlayer.placeDisctrictCard(tray, true, true);
-                            } else {
-                                this.firstPlayer.placeDisctrictCard(tray, true, false);
+                            
+                            while(this.firstPlayer.isHadToChooseBetweenGoldAndCards()) {
+	                        	try {
+	                    			Thread.sleep(10);
+	                    		} catch (Exception e) {
+	                    			System.out.println(e.getMessage());
+	                    		}
                             }
-
-                            this.playPowerAfterPlaceDistrict(this.firstPlayer, characterNumber, activeNow);
-
+                            this.firstPlayer.setFinishRound(false); // IHM
+                            if (this.firstPlayer.isPlayingCharacterNumber() == 3 || this.firstPlayer.isPlayingCharacterNumber() == 4
+                            		|| this.firstPlayer.isPlayingCharacterNumber() == 5 || this.firstPlayer.isPlayingCharacterNumber() == 6
+                            		|| this.firstPlayer.isPlayingCharacterNumber() == 8) {
+                            	this.firstPlayer.setHasUsedHisPower(false); // IHM
+                            	if(this.firstPlayer.isPlayingCharacterNumber() == 8) {
+                            		this.firstPlayer.setHasUsedHisSecondPower(false);
+                            	}
+                            }
+                            
+                            while(!this.firstPlayer.isFinishRound()) {
+	                        	try {
+	                    			Thread.sleep(10);
+	                    		} catch (Exception e) {
+	                    			System.out.println(e.getMessage());
+	                    		}
+                            }
+                            
                             if (tray.firstPlayerDistrictCards().size() >= Tray.NUMBER_CARD_TO_WIN && !this.isSecondPlayerPutTheLastCard) {
                                 this.isFirstPlayerPutTheLastCard = true;
                                 this.isSecondPlayerPutTheLastCard = false;
                             }
+                            
+                            this.firstPlayer.endTurn(); // IHM
                         } else {
+                        	this.secondPlayer.setPlaying(true);
+                        	this.secondPlayer.setIsPlayingCharacterNumber(characterNumber); // IHM
+                        	
                             this.stolenCharacter(characterNumber, false);
-
-                            boolean activeNow = this.playPowerBeforePlaceDistrict(this.secondPlayer, characterNumber);
+                            
+                            
+                            Window.getInstance().updateStructure(Game.getInstance());
+                            this.initRound(this.secondPlayer); // IHM
+                            this.secondPlayer.setHadToChooseBetweenGoldAndCards(true); // IHM
 
                             System.out.println("-----Joueur-----");
                             System.out.println(this.secondPlayer + "\n\n");
-
-                            this.secondPlayer.takeCoinsOrCards(this.cardManager);
-
-                            if ((this.secondPlayer.getFirstCharacter() instanceof Architect || this.secondPlayer.getSecondCharacter() instanceof Architect) && characterNumber == 7) {
-                                this.secondPlayer.placeDisctrictCard(tray, false, true);
-                            } else {
-                                this.secondPlayer.placeDisctrictCard(tray, false, false);
+                            
+                            while(this.secondPlayer.isHadToChooseBetweenGoldAndCards()) {
+	                        	try {
+	                    			Thread.sleep(10);
+	                    		} catch (Exception e) {
+	                    			System.out.println(e.getMessage());
+	                    		}
                             }
-
-                            this.playPowerAfterPlaceDistrict(this.secondPlayer, characterNumber, activeNow);
-
+                            this.secondPlayer.setFinishRound(false); // IHM
+                            if (this.secondPlayer.isPlayingCharacterNumber() == 3 || this.secondPlayer.isPlayingCharacterNumber() == 4
+                            		|| this.secondPlayer.isPlayingCharacterNumber() == 5 || this.secondPlayer.isPlayingCharacterNumber() == 6
+                            		|| this.secondPlayer.isPlayingCharacterNumber() == 8) {
+                              	this.secondPlayer.setHasUsedHisPower(false); // IHM
+                            	if(this.secondPlayer.isPlayingCharacterNumber() == 8) {
+                            		this.secondPlayer.setHasUsedHisSecondPower(false);
+                            	}
+                            }
+                            
+                            while(!this.secondPlayer.isFinishRound()) {
+	                        	try {
+	                    			Thread.sleep(10);
+	                    		} catch (Exception e) {
+	                    			System.out.println(e.getMessage());
+	                    		}
+                            }
+                            
                             if (tray.secondPlayerDistrictCards().size() >= Tray.NUMBER_CARD_TO_WIN && !this.isFirstPlayerPutTheLastCard) {
                                 this.isFirstPlayerPutTheLastCard = false;
                                 this.isSecondPlayerPutTheLastCard = true;
                             }
+                            
+                            this.secondPlayer.endTurn(); // IHM
                         }
                     }
                 }
@@ -186,6 +234,10 @@ public class Game implements Random {
 
             if (this.isFinish) {
                 System.out.println("\n\n-----La partie est terminé-----");
+                
+                // When the game is over, you can see the deck of all the players
+                this.firstPlayer.setPlaying(true); // IHM
+                this.secondPlayer.setPlaying(true); // IHM
 
                 this.getTotalPoints(this.firstPlayer);
                 this.getTotalPoints(this.secondPlayer);
@@ -218,6 +270,7 @@ public class Game implements Random {
      */
     public final void init() {
         this.initGame();
+        Window.getInstance().creationWindow(this); // IHM
         this.manageGame();
     }
 
@@ -236,7 +289,8 @@ public class Game implements Random {
 
         //Give 4 district cards to each players
         this.firstPlayer.getDistrictCard(this.cardManager, 4);
-        this.secondPlayer.getDistrictCard(this.cardManager, 4);
+        this.secondPlayer.getDistrictCard(this.cardManager, 4);   
+      
     }
 
     /**
@@ -259,9 +313,14 @@ public class Game implements Random {
      */
     private void startTurn() {
         System.out.println("\n\n-----Initialisation-----");
-
+        this.firstPlayer.setFirstCharacter(null);
+        this.firstPlayer.setSecondCharacter(null);
+        this.secondPlayer.setFirstCharacter(null);
+        this.secondPlayer.setSecondCharacter(null);
+        
         this.cardManager.addCharacterCards();
         this.cardManager.shuffleCharacterCards();
+        Window.getInstance().updateStructure(Game.getInstance()); // IHM
 
         if (this.firstPlayer.isCrowned()) {
             System.out.println("Le premier joueur possède la couronne, à lui de choisir en premier.");
@@ -291,6 +350,8 @@ public class Game implements Random {
      * @param characterNumber the number of the character, if it's 1 it's the first character else the second character
      */
     private void initPlayerTurn(final Player player, final int characterNumber) {
+    	player.setPlaying(true); // IHM
+    	Window.getInstance().updateStructure(Game.getInstance()); // IHM
         player.chooseCharacterCard(this.cardManager, characterNumber);
 
         if (this.cardManager.getCharacterCards().size() != 1) {
@@ -298,6 +359,9 @@ public class Game implements Random {
         } else {
             this.cardManager.discardAllCharacterCard();
         }
+        
+        player.setPlaying(false); // IHM
+        Window.getInstance().updateStructure(this); // IHM
     }
 
     /**
@@ -340,8 +404,9 @@ public class Game implements Random {
      * @param player          player
      * @param characterNumber character number
      */
-    private void characterPower(final Player player, final int characterNumber) {
-        if (player.getFirstCharacter().getNumber() == characterNumber) {
+    public void characterPower(final Player player) {
+    	System.out.println("launchPowerInside. Player : " + player.getFirstCharacter().getNumber() + player.getSecondCharacter().getNumber() + player.isPlayingCharacterNumber());
+        if (player.getFirstCharacter().getNumber() == player.isPlayingCharacterNumber()) {
             player.getFirstCharacter().power();
             if (player.getFirstCharacter() instanceof Architect) {
                 ((Architect) player.getFirstCharacter()).power(player);
@@ -349,8 +414,13 @@ public class Game implements Random {
                 ((Lord) player.getFirstCharacter()).power(player, this.tray, true);
             } else if (player.getFirstCharacter() instanceof King) {
                 ((King) player.getFirstCharacter()).power(player, this.tray, true);
-                this.firstPlayer.setCrowned(true);
-                this.secondPlayer.setCrowned(false);
+                if(player.getName().equals(this.firstPlayer.getName())) {
+                	this.firstPlayer.setCrowned(true);
+                    this.secondPlayer.setCrowned(false);
+                } else {
+                	this.firstPlayer.setCrowned(false);
+                    this.secondPlayer.setCrowned(true);
+                }
             } else if (player.getFirstCharacter() instanceof Trader) {
                 ((Trader) player.getFirstCharacter()).power(player, this.tray, true);
             } else if (player.getFirstCharacter() instanceof Soldier) {
@@ -358,7 +428,7 @@ public class Game implements Random {
             } else if (player.getFirstCharacter() instanceof Magician) {
                 ((Magician) player.getFirstCharacter()).power(player, player);
             }
-        } else if (player.getSecondCharacter().getNumber() == characterNumber) {
+        } else if (player.getSecondCharacter().getNumber() == player.isPlayingCharacterNumber()) {
             player.getSecondCharacter().power();
             if (player.getSecondCharacter() instanceof Architect) {
                 ((Architect) player.getSecondCharacter()).power(player);
@@ -366,8 +436,13 @@ public class Game implements Random {
                 ((Lord) player.getSecondCharacter()).power(player, this.tray, false);
             } else if (player.getSecondCharacter() instanceof King) {
                 ((King) player.getSecondCharacter()).power(player, this.tray, false);
-                this.firstPlayer.setCrowned(false);
-                this.secondPlayer.setCrowned(true);
+                if(player.getName().equals(this.firstPlayer.getName())) {
+                	this.firstPlayer.setCrowned(true);
+                    this.secondPlayer.setCrowned(false);
+                } else {
+                	this.firstPlayer.setCrowned(false);
+                    this.secondPlayer.setCrowned(true);
+                }
             } else if (player.getSecondCharacter() instanceof Trader) {
                 ((Trader) player.getSecondCharacter()).power(player, this.tray, false);
             } else if (player.getSecondCharacter() instanceof Soldier) {
@@ -376,74 +451,8 @@ public class Game implements Random {
                 ((Magician) player.getSecondCharacter()).power(player, player);
             }
         }
-    }
-
-    /**
-     * Play power before to place district cards.
-     *
-     * @param player          player
-     * @param characterNumber character number
-     * @return if the player active or not is power
-     */
-    private boolean playPowerBeforePlaceDistrict(final Player player, final int characterNumber) {
-        boolean activeNow = false;
-        if (player.getFirstCharacter() instanceof Trader || player.getSecondCharacter() instanceof Trader) {
-            player.setCoins(player.getCoins() + this.bank.giveCoins(1));
-        }
-        if (player.getFirstCharacter() instanceof Lord || player.getSecondCharacter() instanceof Lord
-                || player.getFirstCharacter() instanceof King || player.getSecondCharacter() instanceof King
-                || player.getFirstCharacter() instanceof Trader || player.getSecondCharacter() instanceof Trader
-                || player.getFirstCharacter() instanceof Soldier || player.getSecondCharacter() instanceof Soldier
-                || player.getFirstCharacter() instanceof Magician || player.getSecondCharacter() instanceof Magician) {
-            System.out.println("Voulez ou activer votre pouvoir maintenant ? (o/n) : ");
-            Scanner scanner = new Scanner(System.in);
-            String choice = scanner.nextLine();
-            if (choice.equals("o")) {
-                activeNow = true;
-                this.characterPower(player, characterNumber);
-            } else if (!choice.equals("o") && !choice.equals("n")) {
-                System.out.println("Vous avez tapé un mauvais caractère.");
-                this.playPowerBeforePlaceDistrict(player, characterNumber);
-            }
-        } else {
-            this.characterPower(player, characterNumber);
-        }
-
-        return activeNow;
-    }
-
-    /**
-     * Play power after to place district cards.
-     *
-     * @param player          player
-     * @param characterNumber character number
-     * @param activeNow       if the power isn't played
-     */
-    private void playPowerAfterPlaceDistrict(final Player player, final int characterNumber, final boolean activeNow) {
-        if (player.getFirstCharacter() instanceof Lord || player.getSecondCharacter() instanceof Lord
-                || player.getFirstCharacter() instanceof King || player.getSecondCharacter() instanceof King
-                || player.getFirstCharacter() instanceof Trader || player.getSecondCharacter() instanceof Trader
-                || player.getFirstCharacter() instanceof Soldier || player.getSecondCharacter() instanceof Soldier
-                || player.getFirstCharacter() instanceof Magician || player.getSecondCharacter() instanceof Magician) {
-            if (!activeNow) {
-                System.out.println("Voulez ou activer votre pouvoir (dernière chance) ? (o/n) : ");
-                Scanner scanner = new Scanner(System.in);
-                String choice = scanner.nextLine();
-
-                if (choice.equals("o")) {
-                    this.characterPower(player, characterNumber);
-                } else if (!choice.equals("o") && !choice.equals("n")) {
-                    System.out.println("Vous avez tapé un mauvais caractère.");
-                    this.playPowerAfterPlaceDistrict(player, characterNumber, activeNow);
-                }
-            }
-        }
-
-        if (player.getFirstCharacter() instanceof Soldier) {
-            ((Soldier) player.getFirstCharacter()).power(this.tray, true, this.firstPlayer);
-        } else if (player.getSecondCharacter() instanceof Soldier) {
-            ((Soldier) player.getSecondCharacter()).power(this.tray, false, this.secondPlayer);
-        }
+        player.setHasUsedHisPower(true);
+        Window.getInstance().updateStructure(Game.getInstance());
     }
 
     /**
@@ -483,22 +492,87 @@ public class Game implements Random {
         return tray.isFinish() && this.secondPlayer.getPoints() > this.firstPlayer.getPoints();
     }
     
-    // AJOUT DE GETTER ET SETTER
+    // AJOUT DE METHODES POUR IHM
     
+    /**
+     * Getter for the first player of the game (used by the IHM)
+     * @return the first player affiliate to the game
+     */
     public Player getFirstPlayer() {
 		return firstPlayer;
 	}
 
+    /**
+     * Getter for the second player of the game (used by the IHM)
+     * @return the second player affiliate to the game
+     */
 	public Player getSecondPlayer() {
 		return secondPlayer;
 	}
 	
-	public void changePlayerTMP () {
-		this.firstPlayer.setCoins(50);
-	}
-	
+	/**
+	 * Getter for the tray of the game (used by IHM)
+	 * @return the tray affiliate to the game
+	 */
 	public Tray getTray() {
 		return this.tray;
 	}
 	
+	/**
+	 * Getter for the cardManager of the game (used by the IHM)
+	 * @return the cardmanager affiliate to the game
+	 */
+	public CardManager getCardManager() {
+		return this.cardManager;
+	}
+	
+	/**
+	 * Creation of a unique instance of the game
+	 */
+	private static Game INSTANCE = new Game();
+	
+	/**
+	 * Used by the IHM and other class of the game for updating the IHM
+	 * @return the instance of the game
+	 */
+	public static Game getInstance() {
+		return INSTANCE;
+	}
+	
+	/**
+	 * Init the round of the player (by adding gold if he is the Trader)
+	 * Launch the power of characters : thief, assassin, 
+	 * @param player the player involved by the initialization of the round
+	 */
+	public void initRound(Player player) {
+		if (player.getFirstCharacter() instanceof Trader || player.getSecondCharacter() instanceof Trader) {
+            player.setCoins(player.getCoins() + this.bank.giveCoins(1));
+            Window.getInstance().updateStructure(Game.getInstance());
+        }
+		
+		if (player.isPlayingCharacterNumber() == 1 || player.isPlayingCharacterNumber() == 2
+              || player.isPlayingCharacterNumber() == 7) {
+			this.characterPower(player);
+			player.setHasUsedHisPower(true);
+		}
+	}
+	
+	
+	/**
+	 * Need to be used by the second button of activation of power (available for the soldier only)
+	 * @param player
+	 */
+	public void secondPower(Player player) {
+        if (player.getFirstCharacter() instanceof Soldier) {
+        	if(player.getName().equals(this.firstPlayer.getName()))
+        		((Soldier) player.getFirstCharacter()).power(this.tray, true, this.firstPlayer);
+        	else
+        		((Soldier) player.getFirstCharacter()).power(this.tray, false, this.secondPlayer);
+        } else if (player.getSecondCharacter() instanceof Soldier) {
+        	if(player.getName().equals(this.firstPlayer.getName()))
+        		((Soldier) player.getSecondCharacter()).power(this.tray, true, this.firstPlayer);
+        	else
+        		((Soldier) player.getSecondCharacter()).power(this.tray, false, this.secondPlayer);
+        }
+	}
 }
